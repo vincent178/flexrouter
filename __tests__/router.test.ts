@@ -136,3 +136,14 @@ test('route with multiple param and wildcard param', () => {
   expect(ret.params.id).toBe('a');
   expect(ret.params.new_id).toBe('c/e');
 })
+
+test('route with param regex, prefix and postfix', () => {
+  const r = new Router([
+    { path: '/data-:id(^\\d*).png', data: 'T' }
+  ])
+
+  const ret = r.lookup('data-123.png');
+
+  expect(ret.data).toBe('T');
+  expect(ret.params.id).toBe('123');
+});

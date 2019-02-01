@@ -2,11 +2,12 @@
 import Router from '../src';
 
 const r = new Router([
-  { path: '/:id/:new_id', data: 'T' }
+  { path: '/:id(^\\d*).png', data: 'T' }
 ])
+
 
 debugger;
 
-const ret = r.lookup('/1/2');
+const ret = r.lookup('/12.png');
 
 console.log(ret);
