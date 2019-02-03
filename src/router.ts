@@ -29,9 +29,9 @@ export class Router<T extends any> {
 
   tree: RadixTreeTree<RouteNode<T>>;
 
-  constructor(routes: Route<T>[]) {
+  constructor(routes?: Route<T>[]) {
     this.tree = new RadixTreeTree();
-    routes.forEach(route => this.insert(route));
+    (routes || []).forEach(route => this.insert(route));
   }
 
   lookup(path: string, node?: RadixTreeNode<RouteNode<T>>, pValues?: string[]): RouteResult<T> {

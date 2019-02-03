@@ -1,6 +1,10 @@
 node_modules/
 dist/
 
-*.js
-*.js.map
-*.d.ts
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+
+__tests__/**/*.js
+__tests__/**/*.js.map
+__tests__/**/*.d.ts
