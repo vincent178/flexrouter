@@ -1,0 +1,11 @@
+{
+  "name": "flexrouter-benchmark",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "benchmark": "^2.1.4",
+    "find-my-way": "^1.18.0",
+    "path-to-regexp": "^3.0.0"
+  }
+}

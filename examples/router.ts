@@ -1,13 +1,22 @@
-// import { Router } from '../src/router';
 import Router from '../src';
 
-const r = new Router([
-  { path: '/:id(^\\d*).png', data: 'T' }
-])
+const router = new Router([
+  {
+    path: '/a/b/c', data: 'h1'
+  },
+  {
+    path: '/a/c/d', data: 'h2'
+  },
+  {
+    path: '/a/c/a', data: 'h3'
+  },
+  {
+    path: '/:id/c/e', data: 'h4'
+  }
+]);
 
 
 debugger;
 
-const ret = r.lookup('/12.png');
+const ret = router.lookup('/a/c/e').data
 
-console.log(ret);

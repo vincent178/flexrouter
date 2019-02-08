@@ -34,92 +34,182 @@ export class Router<T extends any> {
     (routes || []).forEach(route => this.insert(route));
   }
 
-  lookup(path: string, node?: RadixTreeNode<RouteNode<T>>, pValues?: string[]): RouteResult<T> {
-    pValues = pValues || [];
-    if (node) {
-      let child = node.findChild(':');
-      if (child) {
+  // _lookup(path: string, node?: RadixTreeNode<RouteNode<T>>, pValues?: string[]): RouteResult<T> {
+  //   pValues = pValues || [];
+  //   if (node) {
+  //     let child = node.findChild(':');
+  //     if (child) {
 
-        // if it's a regex param, use regex to match the path
-        if (child.value.regex) {
-          const match = child.value.regex.exec(path);
-          if (match) {
-            const sp = match[0]
+  //       // if it's a regex param, use regex to match the path
+  //       if (child.value.regex) {
+  //         const match = child.value.regex.exec(path);
+  //         if (match) {
+  //           const sp = match[0]
 
-            pValues.push(sp);
+  //           pValues.push(sp);
 
-            if (sp.length === path.length) {
+  //           if (sp.length === path.length) {
+  //             return {
+  //               data: child.value.data,
+  //               params: this.buildParams(child.value.params, pValues)
+  //             }
+  //           }
+
+  //           path = path.slice(sp.length);
+  //           node = child;
+  //         } else {
+  //           return this.lookupWildcard(node, path, pValues);
+  //         }
+  //       } else {
+  //         let i = 0;
+
+  //         while (path[i] !== '/' && i < path.length) i++;
+
+  //         pValues.push(path.slice(0, i));
+
+  //         // : as the last segement
+  //         if (i === path.length) {
+  //           return {
+  //             data: child.value.data,
+  //             params: this.buildParams(child.value.params, pValues)
+  //           }
+  //         }
+
+  //         path = path.slice(i);
+  //         node = child;
+  //       }
+  //     } else {
+  //       return this.lookupWildcard(node, path, pValues);
+  //     }
+  //   } else {
+  //     node = this.tree.root;
+  //     if (/^\/.+/.test(path)) path = path.slice(1);
+  //   }
+  //   const pNodes = [];
+
+  //   // save the rest path as first item, and the slash node as second, 
+  //   pNodes.push([path, node, pValues]);
+
+  //   while (path.length > 0) {
+  //     const cn = node.findChild(path);
+  //     if (cn) {
+  //       path = path.slice(cn.prefix.length);
+  //       if (cn.findChild(':') || cn.findChild('*')) {
+  //         pNodes.push([path, cn, pValues]);
+  //       }
+  //       node = cn;
+  //       continue;
+  //     }
+  //     break;
+  //   }
+
+  //   if (path.length > 0) {
+  //     // try another until no other way
+  //     while (pNodes.length > 0) {
+  //       const [path, node, pValues] = pNodes.pop();
+  //       const ret = this.lookup(path, node, pValues);
+  //       if (ret) return ret;
+  //     }
+
+  //     // tried everyway, still not found
+  //     return null;
+  //   }
+
+  //   // finally return 
+  //   return {
+  //     params: this.buildParams(node.value.params, pValues),
+  //     data: node.value.data
+  //   };
+  // }
+
+  lookup(path: string): RouteResult<T> {
+    if (/^\/.+/.test(path)) path = path.slice(1);
+
+    const pNodes = [];
+    let pValues = [];
+    let node;
+
+    while (true) {
+      if (node) {
+        let child = node.findChild(':');
+        if (child) {
+  
+          // if it's a regex param, use regex to match the path
+          if (child.value.regex) {
+            const match = child.value.regex.exec(path);
+            if (match) {
+              const sp = match[0]
+  
+              pValues.push(sp);
+  
+              if (sp.length === path.length) {
+                return {
+                  data: child.value.data,
+                  params: this.buildParams(child.value.params, pValues)
+                }
+              }
+  
+              path = path.slice(sp.length);
+              node = child;
+            } else {
+              return this.lookupWildcard(node, path, pValues);
+            }
+          } else {
+            let i = 0;
+  
+            while (path[i] !== '/' && i < path.length) i++;
+  
+            pValues.push(path.slice(0, i));
+  
+            // : as the last segement
+            if (i === path.length) {
               return {
                 data: child.value.data,
                 params: this.buildParams(child.value.params, pValues)
               }
             }
-
-            path = path.slice(sp.length);
+  
+            path = path.slice(i);
             node = child;
-          } else {
-            return this.lookupWildcard(node, path, pValues);
           }
         } else {
-          let i = 0;
-
-          while (path[i] !== '/' && i < path.length) i++;
-
-          pValues.push(path.slice(0, i));
-
-          // : as the last segement
-          if (i === path.length) {
-            return {
-              data: child.value.data,
-              params: this.buildParams(child.value.params, pValues)
-            }
-          }
-
-          path = path.slice(i);
-          node = child;
+          return this.lookupWildcard(node, path, pValues);
         }
       } else {
-        return this.lookupWildcard(node, path, pValues);
+        node = this.tree.root;
+        pNodes.push([path, node, pValues]);
       }
-    } else {
-      node = this.tree.root;
-      if (/^\/.+/.test(path)) path = path.slice(1);
-    }
-    const pNodes = [];
 
-    // save the rest path as first item, and the slash node as second, 
-    pNodes.push([path, node, pValues]);
-
-    while (path.length > 0) {
-      const cn = node.findChild(path);
-      if (cn) {
-        path = path.slice(cn.prefix.length);
-        if (cn.findChild(':') || cn.findChild('*')) {
-          pNodes.push([path, cn, pValues]);
+      // find path via static prefix tree
+      while (path.length > 0) {
+        const cn = node.findChild(path);
+        if (cn) {
+          path = path.slice(cn.prefix.length);
+          if (cn.findChild(':') || cn.findChild('*')) {
+            pNodes.push([path, cn, pValues]);
+          }
+          node = cn;
+          continue;
         }
-        node = cn;
-        continue;
+        break;
       }
-      break;
-    }
-
-    if (path.length > 0) {
-      // try another until no other way
-      while (pNodes.length > 0) {
-        const [path, node, pValues] = pNodes.pop();
-        const ret = this.lookup(path, node, pValues);
-        if (ret) return ret;
+  
+      if (path.length > 0) {
+        // try another until no other way
+        if (pNodes.length > 0) {
+          [path, node, pValues] = pNodes.pop();
+          continue;
+        } else {
+          return null;
+        }
       }
-
-      // tried everyway, still not found
-      return null;
+  
+      // find return 
+      return {
+        params: this.buildParams(node.value.params, pValues),
+        data: node.value.data
+      };
     }
-
-    // finally return 
-    return {
-      params: this.buildParams(node.value.params, pValues),
-      data: node.value.data
-    };
   }
 
   insert(route: Route<T>) {
@@ -131,7 +221,6 @@ export class Router<T extends any> {
     const params = [];
 
     for (let i = 0, l = path.length; i < l; i++) {
-      debugger;
       if (path[i] === ':') {
         let regex: RegExp
 
