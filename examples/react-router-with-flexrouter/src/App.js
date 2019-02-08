@@ -50,7 +50,7 @@ const App = () => {
     return () => unlisten();
   })
 
-  const RouteComponent = rc && rc.data ? rc.data : () => null;
+  const RouteComponent = rc && rc.data ? rc.data : null;
   
   return (
     <div className="App">
@@ -58,7 +58,7 @@ const App = () => {
         <img src={logo} className="App-logo" alt="logo" />
         <Link path="/dashboard">Dashboard</Link>
         <Link path="/user/vincent">User Vincent</Link>
-        <RouteComponent params={rc && rc.params ? rc.params : null} />
+        { RouteComponent && <RouteComponent params={rc && rc.params ? rc.params : null} /> }
       </header>
     </div>
   )
