@@ -1,11 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createBrowserHistory } from 'history';
 import logo from './logo.svg';
 import './App.css';
-const MatchPath = require('../../../dist').default;
+import MatchPath from '../../../dist';
 
 const history = createBrowserHistory();
 const r  = new MatchPath();
+
+const Dashboard = () => (
+  <div>Dashboard</div>
+)
+
+const User = ({ params }) => (
+  <div>User Name: {params.name}</div>
+)
+
+const Link = ({ path, children }) => {
+  const pushState = (e) => {
+    e.preventDefault();
+    history.push(path)
+  }
+  return (
+    <a onClick={pushState} href={path}>{children}</a>
+  )
+}
 
 const routes = [
   { path: '/dashboard', component: Dashboard },
@@ -20,55 +38,31 @@ routes.forEach(route => {
 })
 
 const App = () => {
+  const [rc, setRC] = useState(null)
 
   useEffect(() => {
+    setRC(r.lookup(window.location.pathname));
+
     const unlisten = history.listen((location, action) => {
-      // location is an object like window.location
-      console.log(action, location.pathname, location.state);
+      setRC(r.lookup(location.pathname));
     });
 
-    return unlisten;
+    return () => unlisten();
   })
 
+  const RouteComponent = rc && rc.data ? rc.data : () => null;
   
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Link path="/dashboard">Dashboard</Link>
+        <Link path="/user/vincent">User Vincent</Link>
+        <RouteComponent params={rc && rc.params ? rc.params : null} />
       </header>
-
-      <Route path="/user/:name" component={User} />
     </div>
   )
 }
 
 export default App;
-
-
-const Dashboard = () => (
-  <div>Dashboard</div>
-)
-
-const Route = ({ path, component }) => {
-
-  useEffect(() => {
-
-  })
-
-}
-
-const User = ({ name }) => (
-  <h1>User Name: {name}</h1>
-)
 
