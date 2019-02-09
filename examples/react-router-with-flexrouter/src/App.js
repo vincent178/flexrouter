@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { createBrowserHistory } from 'history';
 import logo from './logo.svg';
 import './App.css';
-import MatchPath from '../../../dist';
+import Flexrouter from '../../../dist';
 
 const history = createBrowserHistory();
-const r  = new MatchPath();
+const r  = new Flexrouter();
 
 const Dashboard = () => (
   <div>Dashboard</div>

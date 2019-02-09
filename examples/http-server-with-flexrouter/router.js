@@ -1,9 +1,9 @@
-const Router = require('../../dist').default;
+const Flexrouter = require('../../dist').default;
 
 class HttpRouter {
 
   constructor() {
-    this.router = new Router();
+    this.router = new Flexrouter();
   }
 
   on(method, route, handler) {
