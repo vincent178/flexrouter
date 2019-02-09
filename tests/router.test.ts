@@ -147,3 +147,13 @@ test('route with param regex, prefix and postfix', () => {
   expect(ret.data).toBe('T');
   expect(ret.params.id).toBe('123');
 });
+
+test('route lookup sp1', () => {
+  const r = new Router([
+    { path: '/acc', data: 'T1' },
+    { path: '/acj', data: 'T2'}
+  ])
+
+  const ret = r.lookup('/abc');
+  expect(ret).toBeNull();
+})

@@ -1,5 +1,16 @@
 import { RadixTreeNode, RadixTreeTree } from './tree';
-import { findCloseParenthesis, convertStringToRegex } from './util';
+import { findCloseParenthesis, getCommonLen } from './util';
+
+/*
+  Char codes:
+    '#': 35
+    '*': 42
+    '-': 45
+    '/': 47
+    ':': 58
+    ';': 59
+    '?': 63
+*/
 
 interface Route<T> {
   path: string;
@@ -33,94 +44,6 @@ export class Router<T extends any> {
     this.tree = new RadixTreeTree();
     (routes || []).forEach(route => this.insert(route));
   }
-
-  // _lookup(path: string, node?: RadixTreeNode<RouteNode<T>>, pValues?: string[]): RouteResult<T> {
-  //   pValues = pValues || [];
-  //   if (node) {
-  //     let child = node.findChild(':');
-  //     if (child) {
-
-  //       // if it's a regex param, use regex to match the path
-  //       if (child.value.regex) {
-  //         const match = child.value.regex.exec(path);
-  //         if (match) {
-  //           const sp = match[0]
-
-  //           pValues.push(sp);
-
-  //           if (sp.length === path.length) {
-  //             return {
-  //               data: child.value.data,
-  //               params: this.buildParams(child.value.params, pValues)
-  //             }
-  //           }
-
-  //           path = path.slice(sp.length);
-  //           node = child;
-  //         } else {
-  //           return this.lookupWildcard(node, path, pValues);
-  //         }
-  //       } else {
-  //         let i = 0;
-
-  //         while (path[i] !== '/' && i < path.length) i++;
-
-  //         pValues.push(path.slice(0, i));
-
-  //         // : as the last segement
-  //         if (i === path.length) {
-  //           return {
-  //             data: child.value.data,
-  //             params: this.buildParams(child.value.params, pValues)
-  //           }
-  //         }
-
-  //         path = path.slice(i);
-  //         node = child;
-  //       }
-  //     } else {
-  //       return this.lookupWildcard(node, path, pValues);
-  //     }
-  //   } else {
-  //     node = this.tree.root;
-  //     if (/^\/.+/.test(path)) path = path.slice(1);
-  //   }
-  //   const pNodes = [];
-
-  //   // save the rest path as first item, and the slash node as second, 
-  //   pNodes.push([path, node, pValues]);
-
-  //   while (path.length > 0) {
-  //     const cn = node.findChild(path);
-  //     if (cn) {
-  //       path = path.slice(cn.prefix.length);
-  //       if (cn.findChild(':') || cn.findChild('*')) {
-  //         pNodes.push([path, cn, pValues]);
-  //       }
-  //       node = cn;
-  //       continue;
-  //     }
-  //     break;
-  //   }
-
-  //   if (path.length > 0) {
-  //     // try another until no other way
-  //     while (pNodes.length > 0) {
-  //       const [path, node, pValues] = pNodes.pop();
-  //       const ret = this.lookup(path, node, pValues);
-  //       if (ret) return ret;
-  //     }
-
-  //     // tried everyway, still not found
-  //     return null;
-  //   }
-
-  //   // finally return 
-  //   return {
-  //     params: this.buildParams(node.value.params, pValues),
-  //     data: node.value.data
-  //   };
-  // }
 
   lookup(path: string): RouteResult<T> {
     if (/^\/.+/.test(path)) path = path.slice(1);
@@ -157,7 +80,7 @@ export class Router<T extends any> {
           } else {
             let i = 0;
   
-            while (path[i] !== '/' && i < path.length) i++;
+            while (path.charCodeAt(i) !== 47 && i < path.length) i++;
   
             pValues.push(path.slice(0, i));
   
@@ -184,13 +107,17 @@ export class Router<T extends any> {
       while (path.length > 0) {
         const cn = node.findChild(path);
         if (cn) {
-          path = path.slice(cn.prefix.length);
-          if (cn.findChild(':') || cn.findChild('*')) {
-            pNodes.push([path, cn, pValues]);
+          // check the common path 
+          const maxLen = getCommonLen(path, cn.prefix);
+          if (maxLen === cn.prefix.length) {
+            path = path.slice(cn.prefix.length);
+            if (cn.findChild(':') || cn.findChild('*')) {
+              pNodes.push([path, cn, pValues]);
+            }
+            node = cn;
+            continue;
           }
-          node = cn;
-          continue;
-        }
+       }
         break;
       }
   
