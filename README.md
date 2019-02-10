@@ -41,10 +41,10 @@ That's it.
 
 ## Support Patterns
 
-1. static route: '/home'
-2. param route: '/topic/:id'
-3. param route with regex: 'topic/photo-:id(/\\d+/).jpg'
-4. wildcard route: '/*site'
+1. static route: `/home`
+2. param route: `/topic/:id`
+3. param route with regex: `topic/photo-:id(/\\d+/).jpg`
+4. wildcard route: `/*site`
 
 ## Performance
 
