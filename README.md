@@ -59,4 +59,4 @@ Checkout the [benchmark](./benchmark/index.js) code.
 
 ## Credit
 
-Inspired by golang httprouter https://github.com/julienschmidt/httprouter
+Inspired by httprouter https://github.com/julienschmidt/httprouter and find-my-way https://github.com/delvedor/find-my-way
