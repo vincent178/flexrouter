@@ -2,6 +2,7 @@ const Flexrouter = require('../../dist').default;
 
 class HttpRouter {
 
+  // refactor: each http request has its own router tree
   constructor() {
     this.router = new Flexrouter();
   }
