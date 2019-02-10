@@ -11,6 +11,10 @@ Flexrouter
 
 **Param match and wildcard match:** support `/user/:name` parameter pattern and `/*site` wildcard pattern
 
+## Install
+
+`npm i flexible-router`
+
 ## Usage
 
 Flexrouter has only two API, `insert` is used to register a route, route is a plain javascript object.
